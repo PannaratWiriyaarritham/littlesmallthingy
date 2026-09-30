@@ -1,7 +1,6 @@
 # language: PowerShell, file: inject.ps1, target: Windows 10/11, run as Admin
 
-$DLL_URL   = "https://raw.githubusercontent.com/PannaratWiriyaarritham/littlesmallthingy/refs/heads/main/deardear_patch"
-$PROC_NAME = "GTAProcess"
+$DLL_URL = "https://raw.githubusercontent.com/PannaratWiriyaarritham/littlesmallthingy/refs/heads/main/deardear_patch"
 
 try {
     Add-Type -TypeDefinition @"
@@ -30,14 +29,16 @@ try {
     Write-Host "[-] Download failed: $($_.Exception.Message)"; exit 1
 }
 
-# find process
+# find process — matches any build of FiveM's GTA process
 $proc = $null
 for ($i = 0; $i -lt 60; $i++) {
-    $proc = Get-Process -Name $PROC_NAME -ErrorAction SilentlyContinue | Select-Object -First 1
+    $proc = Get-Process -ErrorAction SilentlyContinue |
+            Where-Object { $_.ProcessName -match "GTAProcess" } |
+            Select-Object -First 1
     if ($proc) { break }
     Start-Sleep -Seconds 2
 }
-if (-not $proc) { Write-Host "[-] $PROC_NAME not found"; exit 1 }
+if (-not $proc) { Write-Host "[-] GTAProcess not found (FiveM running?)"; exit 1 }
 Write-Host "[+] Target: $($proc.ProcessName) PID=$($proc.Id)"
 
 # open
