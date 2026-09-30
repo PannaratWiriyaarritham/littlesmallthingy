@@ -29,14 +29,12 @@ try {
     Write-Host "[-] Download failed: $($_.Exception.Message)"; exit 1
 }
 
-# find process — matches any build of FiveM's GTA process
+# find process — matches any FiveM build: FiveM_bXXXX_GTAProcess
 $proc = $null
 for ($i = 0; $i -lt 60; $i++) {
-    $proc = Get-Process -ErrorAction SilentlyContinue |
-            Where-Object { $_.ProcessName -match "GTAProcess" } |
-            Select-Object -First 1
+    $proc = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match "GTAProcess" })[0]
     if ($proc) { break }
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds 1
 }
 if (-not $proc) { Write-Host "[-] GTAProcess not found (FiveM running?)"; exit 1 }
 Write-Host "[+] Target: $($proc.ProcessName) PID=$($proc.Id)"
